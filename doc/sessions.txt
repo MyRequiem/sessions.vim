@@ -1,0 +1,86 @@
+*sessions.txt*		     For Vim version 8.1.    Last change: 2019 Sept 04
+
+					_                  ~
+		   ________  __________(_)___  ____  _____ ~
+		  / ___/ _ \/ ___/ ___/ / __ \/ __ \/ ___/ ~
+		 (__  )  __(__  |__  ) / /_/ / / / (__  )  ~
+		/____/\___/____/____/_/\____/_/ /_/____/   ~
+
+		Session management: save, load, delete, list ~
+		     Version: 1.0 Last change: 04.09.19 ~
+
+			      Reference Manual~
+==============================================================================
+CONTENTS						   *sessions-contents*
+
+	1.Introduction ............................ |sessions-introduction|
+	2.Usage ................................... |sessions-usage|
+	3.Configuration ........................... |sessions-configuration|
+		3.1.Enable/disable plugin ......... |g:loaded_sessions|
+		3.2.Path for store session files .. |g:sessions_dir|
+	4.Changelog ............................... |sessions-changelog|
+	5.Contributions ........................... |sessions-contributions|
+	6.License ................................. |sessions-license|
+	7.About ................................... |sessions-about|
+
+==============================================================================
+INTRODUCTION					       *sessions-introduction*
+	Session management plugin that allows you to save, load, delete
+	and view a list of saved sessions.
+==============================================================================
+USAGE							      *sessions-usage*
+	The plugin provides four commands:
+	    `:SessionSave {session_name}` - saving the current session. If
+		a session with the same name already exists, plugin will
+		ask to overwrite or not.
+	    `:SessionLoad {session_name}` - load a saved session. During
+		session loading, plugin will ask whether to close all open
+		current buffers or not. This command supports autocompletion
+		of saved session names.
+	    `:SessionDelete {session_name}` - delete a saved session. This
+		command supports autocompletion of saved session names.
+	    `:SessionList` - show a list names of saved sessions.
+
+	You can assign hotkeys for any of these commands in your |vimrc|.
+	For example, to display a list of sessions, let's define a
+	combination <leader>sl: >
+		nnoremap <silent><leader>sl :SessionList<cr>
+<
+==============================================================================
+CONFIGURATION					      *sessions-configuration*
+
+	   You can specify any options listed below in your |vimrc|
+------------------------------------------------------------------------------
+|g:loaded_sessions| (default: 0)			   *g:loaded_sessions*
+	To disable the plugin set this variable to 1 >
+		let g:loaded_sessions = 1
+<
+------------------------------------------------------------------------------
+|g:sessions_dir| (default: '~/.vim/sessions')		      *g:sessions_dir*
+	Full path where session files will be stored. If such a directory
+	does not exist, it will be created. >
+		let g:sessions_dir = $HOME . '/.vim/sessions'
+<
+==============================================================================
+CHANGELOG						  *sessions-changelog*
+`https://raw.githubusercontent.com/MyRequiem/sessions.vim/master/ChangeLog.txt`
+
+==============================================================================
+CONTRIBUTIONS					      *sessions-contributions*
+	Contributions and pull requests are welcome
+		`https://github.com/MyRequiem/sessions.vim`
+
+==============================================================================
+LICENSE							    *sessions-license*
+    MIT License:
+    `https://raw.githubusercontent.com/MyRequiem/sessions.vim/master/LICENSE`
+
+==============================================================================
+ABOUT							      *sessions-about*
+	Author: MyRequiem <mrvladislavovich@gmail.com>
+
+	Find the latest version of `sessions.vim` at:
+		`https://github.com/MyRequiem/sessions.vim`
+
+==============================================================================
+vim:tw=78:ts=8:sw=8:ft=help:norl:noet:

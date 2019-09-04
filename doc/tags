@@ -1,0 +1,11 @@
+g:loaded_sessions	sessions.txt	/*g:loaded_sessions*
+g:sessions_dir	sessions.txt	/*g:sessions_dir*
+sessions-about	sessions.txt	/*sessions-about*
+sessions-changelog	sessions.txt	/*sessions-changelog*
+sessions-configuration	sessions.txt	/*sessions-configuration*
+sessions-contents	sessions.txt	/*sessions-contents*
+sessions-contributions	sessions.txt	/*sessions-contributions*
+sessions-introduction	sessions.txt	/*sessions-introduction*
+sessions-license	sessions.txt	/*sessions-license*
+sessions-usage	sessions.txt	/*sessions-usage*
+sessions.txt	sessions.txt	/*sessions.txt*

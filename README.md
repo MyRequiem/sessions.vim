@@ -1,2 +1,2 @@
 # sessions.vim
-Plugin for Vim editor
+Session management plugin for Vim editor: save, load, delete, list.

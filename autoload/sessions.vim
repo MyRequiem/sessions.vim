@@ -1,57 +1,74 @@
-" вывести ошибку {{{1
-function! s:showError(str)
+function! s:showError(str) abort " {{{1
         echohl SpecialChar | echo a:str | echohl NONE
 endfunction " 1}}}
 
-" обработка введенного пользователем имени сессии {{{1
-" (удаление начальных и конечных кавычек)
-function! s:substituteSessionName(name)
+function! s:substituteSessionName(name) abort " {{{1
     return substitute(a:name, '\v''|"', '', 'g')
 endfunction " 1}}}
 
-" возвращает полный путь к файлу сессии {{{1
-function! s:getSessionFile(sname)
+" s:getSessionFile(sname) abort {{{1
+" return the full path to the session file
+function! s:getSessionFile(sname) abort
     let l:sessionfile = printf('%s/%s.vim', g:sessions_dir, a:sname)
-    if !empty(glob(l:sessionfile))
+    if !empty(glob(substitute(l:sessionfile, '[', '\\[', 'g')))
         return l:sessionfile
     else
         return ''
     endif
 endfunction " 1}}}
 
-" создание сессии {{{1
-function! sessions#SessionSave(...)
+function! sessions#SessionSave(...) abort " {{{1
     if !len(a:000)
-        call <SID>showError('Usage: SessionSave {session-name}')
+        call <SID>showError('Usage: SessionSave {session_name}')
         return
     endif
 
     let l:sessionname = <SID>substituteSessionName(join(a:000))
 
+    " if a session with the same name already exists
+    if !empty(<SID>getSessionFile(l:sessionname))
+        let l:answer = confirm('Session with the same name already exists. ' .
+                             \ 'Overwrite it?', "&yes\n&no", 2)
+        redraw
+        if  l:answer != 1
+            echo "Saving session '" . l:sessionname . "' canceled"
+            return
+        endif
+    endif
+
     execute printf('silent mksession! %s/%s.vim', g:sessions_dir, l:sessionname)
     echo printf("Session '%s' saved", l:sessionname)
 endfunction " 1}}}
 
-" вывод списка сохраненных сессий {{{1
-function! sessions#SessionList()
-    let l:sessions = systemlist('ls ' . g:sessions_dir . '/*.vim 2>/dev/null')
-
-    if !len(l:sessions)
-        echo 'No saved sessions in ' . fnamemodify(g:sessions_dir, ':~') . '/'
+function! sessions#SessionLoad(...) abort "{{{1
+    if !len(a:000)
+        call <SID>showError('Usage: SessionLoad {session_name}')
         return
     endif
 
-    let l:i = 1
-    for l:session in l:sessions
-        echo string(l:i) . '. ' . fnamemodify(l:session, ':t:r')
-        let l:i += 1
-    endfor
+    let l:sessionname = <SID>substituteSessionName(join(a:000))
+    let l:sessionfile = <SID>getSessionFile(l:sessionname)
+
+    if empty(l:sessionfile)
+        call <SID>showError(printf("Session '%s' not found", l:sessionname))
+        return
+    endif
+
+    let l:count_opened_listed_buffers = len(getbufinfo({'buflisted': 1}))
+    let l:answer = confirm('Close all opened buffers ' .
+                         \ '(total: ' . l:count_opened_listed_buffers  . ')?',
+                         \ "&yes\n&no", 2)
+    if  l:answer == 1
+        " 'bdelete' command is run for each buffer in the buffer list
+        execute 'bufdo bdelete'
+    endif
+
+    execute 'source ' . l:sessionfile
 endfunction " 1}}}
 
-" удаление сессии {{{1
-function! sessions#SessionDelete(...)
+function! sessions#SessionDelete(...) abort " {{{1
     if !len(a:000)
-        call <SID>showError('Usage: SessionDelete {session-name}')
+        call <SID>showError('Usage: SessionDelete {session_name}')
         return
     endif
 
@@ -67,27 +84,27 @@ function! sessions#SessionDelete(...)
     echo printf("Session '%s' deleted", l:sessionname)
 endfunction " 1}}}
 
-" загрузка сессии {{{1
-function! sessions#SessionLoad(...)
-    if !len(a:000)
-        call <SID>showError('Usage: SessionLoad {session-name}')
+function! sessions#SessionList() abort " {{{1
+    let l:sessions_names = <SID>GetSessionsNamesList()
+    if !len(l:sessions_names)
+        echo 'No saved sessions in ' . fnamemodify(g:sessions_dir, ':~') . '/'
         return
     endif
 
-    let l:sessionname = <SID>substituteSessionName(join(a:000))
-    let l:sessionfile = <SID>getSessionFile(l:sessionname)
+    let l:i = 1
+    for l:session_name in l:sessions_names
+        echo string(l:i) . '. ' . l:session_name
+        let l:i += 1
+    endfor
+endfunction " 1}}}
 
-    if empty(l:sessionfile)
-        call <SID>showError(printf("Session '%s' not found", l:sessionname))
-        return
-    endif
+function! s:GetSessionsNamesList() abort " {{{1
+    return map(split(globpath(g:sessions_dir, '*.vim'), '\n'),
+             \ 'fnamemodify(v:val, ":t:r")')
+endfunction " 1}}}
 
-    let l:prompt = "Loading session '%s'. Close all open buffers [y/N]?: "
-    let l:answer = input(printf(l:prompt, l:sessionname))
-    if  l:answer ==? 'y'
-        " для каждого буфера запускается 'bdelete'
-        execute 'bufdo bdelete'
-    endif
-
-    execute 'source ' . l:sessionfile
+" sessions#GetSessionsNames(ArgLead, CmdLine, CursorPos) abort {{{1
+" :h command-completion-customlist
+function! sessions#GetSessionsNames(ArgLead, CmdLine, CursorPos) abort
+    return <SID>GetSessionsNamesList()
 endfunction " 1}}}
